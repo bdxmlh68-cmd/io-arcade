@@ -10,9 +10,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: numworks/setup-arm-toolchain@v1
+
+      - name: Install ARM toolchain and EADK headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi make nodejs npm
+          npm install -g nwlink || true
+
       - name: Build .nwa
         run: make clean && make
+
       - uses: actions/upload-artifact@v4
         with:
           name: io-arcade-nwa
