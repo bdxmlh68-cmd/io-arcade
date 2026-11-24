@@ -11,16 +11,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install ARM toolchain and EADK headers
+      - name: Install ARM toolchain and Python
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi make nodejs npm
-          npm install -g nwlink || true
+          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi make python3 zip
 
-      - name: Build .nwa
-        run: make clean && make
+      - name: Compile binary and build .nwa package
+        run: |
+          make clean && make
+          arm-none-eabi-objcopy -O binary target/io-arcade.nwa target/app.bin
+          python3 -c '
+import json, zipfile
+with open("target/metadata.json", "w") as f:
+    json.dump({"name": "IO Arcade"}, f)
+with zipfile.ZipFile("target/io-arcade-pkg.nwa", "w", zipfile.ZIP_DEFLATED) as z:
+    z.write("target/app.bin", "app.bin")
+    z.write("target/metadata.json", "metadata.json")
+'
+          ls -lh target/
 
       - uses: actions/upload-artifact@v4
         with:
           name: io-arcade-nwa
-          path: target/io-arcade.nwa
+          path: target/io-arcade-pkg.nwa
