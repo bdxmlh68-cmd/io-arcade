@@ -1,0 +1,19 @@
+name: Build NWA
+
+on:
+  push:
+    branches: [ "**" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: numworks/setup-arm-toolchain@v1
+      - name: Build .nwa
+        run: make clean && make
+      - uses: actions/upload-artifact@v4
+        with:
+          name: io-arcade-nwa
+          path: target/io-arcade.nwa
