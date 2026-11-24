@@ -20,14 +20,14 @@ jobs:
         run: |
           make clean && make
           arm-none-eabi-objcopy -O binary target/io-arcade.nwa target/app.bin
-          python3 -c '
-import json, zipfile
-with open("target/metadata.json", "w") as f:
-    json.dump({"name": "IO Arcade"}, f)
-with zipfile.ZipFile("target/io-arcade-pkg.nwa", "w", zipfile.ZIP_DEFLATED) as z:
-    z.write("target/app.bin", "app.bin")
-    z.write("target/metadata.json", "metadata.json")
-'
+          python3 - << 'EOF'
+          import json, zipfile
+          with open("target/metadata.json", "w") as f:
+              json.dump({"name": "IO Arcade"}, f)
+          with zipfile.ZipFile("target/io-arcade-pkg.nwa", "w", zipfile.ZIP_DEFLATED) as z:
+              z.write("target/app.bin", "app.bin")
+              z.write("target/metadata.json", "metadata.json")
+          EOF
           ls -lh target/
 
       - uses: actions/upload-artifact@v4
